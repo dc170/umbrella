@@ -1,0 +1,149 @@
+
+-------------------------------------------------------------------------------------
+
+CREATE TABLE CLIENT (
+  client_id INTEGER NOT NULL, 
+  name TEXT,
+  ip_address VARCHAR(15),
+  system text,
+  org text,
+  comment text,
+  PRIMARY KEY (client_id)
+);
+
+CREATE TABLE ATTACKER (
+  attacker_id INTEGER NOT NULL, 
+  ip_address VARCHAR(15),
+  country_code VARCHAR(5),
+  country_name text,
+  PRIMARY KEY (attacker_id)
+);
+
+CREATE TABLE SENSOR (
+  sensor_id INTEGER NOT NULL, 
+  ip_address VARCHAR(15),
+  name TEXT,
+  version VARCHAR(5),
+  PRIMARY KEY (sensor_id)
+);
+
+CREATE TABLE VPN (
+  vpn_id INTEGER NOT NULL, 
+  client_id int4 REFERENCES CLIENT(client_id) ON DELETE CASCADE,
+  config_file TEXT,
+  PRIMARY KEY (vpn_id)
+);
+
+
+
+CREATE TABLE RULE (
+  rulefile_id INTEGER NOT NULL, 
+  sensor_id int4 REFERENCES SENSOR(sensor_id) ON DELETE CASCADE,
+  file text,
+  category TEXT,
+  lines int4,
+  PRIMARY KEY (rulefile_id)
+);
+
+CREATE TABLE RULE_LINE (
+  rule_id INTEGER NOT NULL, 
+  rulefile_id int4 REFERENCES RULE(rulefile_id) ON DELETE CASCADE,
+  line TEXT,
+  PRIMARY KEY (rule_id)
+);
+
+
+CREATE TABLE PCAP (
+  pcap_id INTEGER NOT NULL, 
+  client_id int4 REFERENCES CLIENT(client_id) ON DELETE CASCADE,
+  date TIMESTAMP,
+  comment TEXT,
+  file TEXT,
+  PRIMARY KEY (pcap_id)
+);
+
+
+
+CREATE TABLE ALERT (
+  alert_id INTEGER NOT NULL, 
+  attacker_id int4 REFERENCES ATTACKER(attacker_id) ON DELETE CASCADE,
+  src_ip VARCHAR(15),
+  src_port VARCHAR(8),
+  dest_port VARCHAR(8),
+  proto VARCHAR(8),
+  app_proto VARCHAR(8),
+  action VARCHAR(12),
+  signature TEXT,
+  category TEXT,
+  severity int4,
+  PRIMARY KEY (alert_id)
+);
+
+CREATE TABLE ALERT_PCAP (
+  alert_pcap_id INTEGER NOT NULL, 
+  pcap_id int4 REFERENCES PCAP(pcap_id) ON DELETE CASCADE,
+  alert_id int4 REFERENCES ALERT(alert_id) ON DELETE CASCADE,
+  PRIMARY KEY (alert_pcap_id)
+);
+
+CREATE TABLE ALERT_SENSOR (
+  alert_sensor_id INTEGER NOT NULL, 
+  sensor_id int4 REFERENCES SENSOR(sensor_id) ON DELETE CASCADE,
+  alert_id int4 REFERENCES ALERT(alert_id) ON DELETE CASCADE,
+  PRIMARY KEY (alert_sensor_id)
+);
+
+CREATE TABLE STATS (
+  stats_id INTEGER NOT NULL, 
+  pcap_id int4 REFERENCES PCAP(pcap_id) ON DELETE CASCADE,
+  pkts int4,
+  bytes int4,
+  ipv4 int4,
+  ipv6 int4,
+  tcp int4,
+  udp int4,
+  avg_pkt_size int4,
+  max_pkt_size int4,
+  http int4,
+  smtp int4,
+  tls int4,
+  ssh int4,
+  smb int4,
+  alert int4,
+  PRIMARY KEY (stats_id)
+);
+
+
+sudo -u postgres psql suricata < '/tables2.sql'
+
+alert:
+
+src_ip, dest_ip, dest_port, proto, app_proto, action, sig_id, signature, category, severity
+
+stats:
+
+stats -> decoder ->
+
+pkts, bytes, ipv4, ipv6, tcp, udp, avg_pkt_size, max_pkt_size,
+
+stats -> app_layer -> flow AND tx
+
+http, ftp, smtp, tls, ssh, smb 
+
+stats -> detect 
+
+alert
+
+
+
+
+
+
+
+
+	modificado:    src/main/java/org/udg/pds/simpleapp_javaee/rest/NoticiesRESTService.java
+	modificado:    src/main/java/org/udg/pds/simpleapp_javaee/rest/PreguntesRESTService.java
+	modificado:    src/main/java/org/udg/pds/simpleapp_javaee/service/NoticiaService.java
+	modificado:    src/main/java/org/udg/pds/simpleapp_javaee/service/PreguntesService.java
+
+https://github.com/nestordeharo/mysql-python-class/blob/master/mysql_python.py
